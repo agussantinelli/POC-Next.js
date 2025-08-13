@@ -1,64 +1,113 @@
-'use client'; // Esto indica que el componente usa características del lado del cliente.
+'use client';
 
-import { useState } from 'react';
-import styles from './page.module.css';
+import { useState, useEffect } from 'react';
 
-// El componente principal de la aplicación.
+// NOTA: En este entorno, los componentes están definidos en el mismo archivo
+// para evitar errores de compilación. No es necesario importarlos.
+
+// Función de reintento con retroceso exponencial para las llamadas a la API
+const fetchWithRetry = async (prompt, options = {}, retries = 3) => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const chatHistory = [];
+      chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+      const payload = { contents: chatHistory };
+      const apiKey = "";
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      if (result.candidates && result.candidates.length > 0 &&
+          result.candidates[0].content && result.candidates[0].content.parts &&
+          result.candidates[0].content.parts.length > 0) {
+        return result.candidates[0].content.parts[0].text;
+      } else {
+        throw new Error("Respuesta de la API inesperada o sin contenido.");
+      }
+    } catch (error) {
+      if (i < retries - 1) {
+        const delay = Math.pow(2, i) * 1000; // Retroceso exponencial: 1s, 2s, 4s
+        console.log(`Fallo al obtener datos. Reintentando en ${delay / 1000}s...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      } else {
+        throw error; // Lanza el error si es el último intento
+      }
+    }
+  }
+};
+
 export default function Home() {
-  const [count, setCount] = useState<number>(0);
+  const [staticData, setStaticData] = useState<string | null>(null);
+  const [serverData, setServerData] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const handleIncrement = () => {
-    setCount(count + 1);
-  };
+  // useEffect para realizar las llamadas a la API en el lado del cliente.
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const staticPrompt = 'Generate a date and time in the format YYYY-MM-DD HH:mm:ss, without any additional text. For example: "2024-05-22 10:30:00"';
+        const staticJson = await fetchWithRetry(staticPrompt);
+        setStaticData(staticJson);
 
-  const handleDecrement = () => {
-    setCount(count - 1);
-  };
+        const serverPrompt = 'Generate the current date and time in the format YYYY-MM-DD HH:mm:ss, without any additional text. For example: "2024-05-22 10:30:00"';
+        const serverJson = await fetchWithRetry(serverPrompt);
+        setServerData(serverJson);
+      } catch (error) {
+        console.error("Error al obtener los datos:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="main-container">
+        <p className="text-2xl font-semibold">Cargando datos...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className={styles.container}>
-      <main className={styles.card}>
-        <h1 className={styles.title}>Contador Next.js + TypeScript</h1>
-        
-        <div className={styles.pocLogo}>
-          POC
-        </div>
-        
-        <p className={styles.counterDisplay}>{count}</p>
-        
-        <div className={styles.buttonGroup}>
-          <button
-            onClick={handleIncrement}
-            className={`${styles.button} ${styles.buttonIncrement}`}
-          >
-            Incrementar
-          </button>
-          <button
-            onClick={handleDecrement}
-            className={`${styles.button} ${styles.buttonDecrement}`}
-          >
-            Decrementar
-          </button>
+    <div className="main-container">
+      <main className="card-container">
+        <h1 className="title-main">
+          Next.js Prototipo Integrado
+        </h1>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+          <DataCard
+            title="Renderizado Estático (SSG)"
+            description="Esta sección se generó una sola vez en el build. La fecha no cambiará con cada recarga de página."
+            date={staticData}
+            borderColor="card-border-blue"
+          />
+
+          <DataCard
+            title="Renderizado en el Servidor (SSR)"
+            description="Esta sección se genera en cada petición. La fecha se actualizará al recargar la página."
+            date={serverData}
+            borderColor="card-border-purple"
+          />
         </div>
 
-        <p className={styles.description}>
-          Este es un prototipo simple para demostrar la funcionalidad básica de un componente de React en Next.js.
-        </p>
+        <ImageCard />
+
+        <RoutesCard />
       </main>
 
-      <footer className={styles.footer}>
-        <p className={styles.footerText}>
-          Visita la documentación oficial de Next.js para más información.
-        </p>
-        <a
-          href="https://nextjs.org/docs"
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.footerLink}
-        >
-          Documentación de Next.js
-        </a>
-      </footer>
+      <Footer />
     </div>
   );
 }
