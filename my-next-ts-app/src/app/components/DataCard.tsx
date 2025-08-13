@@ -1,3 +1,4 @@
+// Interface para definir los tipos de las props.
 interface DataCardProps {
   title: string;
   description: string;
@@ -16,3 +17,5 @@ const DataCard = ({ title, description, date, borderColor }: DataCardProps) => {
     </div>
   );
 };
+
+export default DataCard;

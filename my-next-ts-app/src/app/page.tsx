@@ -1,12 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-
-// NOTA: En este entorno, los componentes están definidos en el mismo archivo
-// para evitar errores de compilación. No es necesario importarlos.
+// Se corrigen las rutas de importación. El compilador de Next.js normalmente
+// no requiere la extensión del archivo para los componentes en TypeScript.
+import DataCard from './components/DataCard';
+import ImageCard from './components/ImageCard';
+import RoutesCard from './components/RoutesCard';
+import Footer from './components/Footer';
 
 // Función de reintento con retroceso exponencial para las llamadas a la API
-const fetchWithRetry = async (prompt, options = {}, retries = 3) => {
+const fetchWithRetry = async (prompt: string, options = {}, retries = 3) => {
   for (let i = 0; i < retries; i++) {
     try {
       const chatHistory = [];

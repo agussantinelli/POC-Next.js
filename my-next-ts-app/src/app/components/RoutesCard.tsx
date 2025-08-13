@@ -24,3 +24,5 @@ const RoutesCard = () => {
     </div>
   );
 };
+
+export default RoutesCard;

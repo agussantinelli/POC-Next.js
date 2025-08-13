@@ -17,3 +17,5 @@ const ImageCard = () => {
     </div>
   );
 };
+
+export default ImageCard;
