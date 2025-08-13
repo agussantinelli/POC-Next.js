@@ -1,93 +1,62 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client'; // Esto indica que el componente usa características del lado del cliente.
 
+import { useState } from 'react';
+import styles from './page.module.css';
+
+// El componente principal de la aplicación.
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [count, setCount] = useState<number>(0);
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
+  const handleIncrement = () => {
+    setCount(count + 1);
+  };
+
+  const handleDecrement = () => {
+    setCount(count - 1);
+  };
+
+  return (
+    <div className={styles.container}>
+      <main className={styles.card}>
+        <h1 className={styles.title}>Contador Next.js + TypeScript</h1>
+        
+        <div className={styles.pocLogo}>
+          POC
         </div>
+        
+        <p className={styles.counterDisplay}>{count}</p>
+        
+        <div className={styles.buttonGroup}>
+          <button
+            onClick={handleIncrement}
+            className={`${styles.button} ${styles.buttonIncrement}`}
+          >
+            Incrementar
+          </button>
+          <button
+            onClick={handleDecrement}
+            className={`${styles.button} ${styles.buttonDecrement}`}
+          >
+            Decrementar
+          </button>
+        </div>
+
+        <p className={styles.description}>
+          Este es un prototipo simple para demostrar la funcionalidad básica de un componente de React en Next.js.
+        </p>
       </main>
+
       <footer className={styles.footer}>
+        <p className={styles.footerText}>
+          Visita la documentación oficial de Next.js para más información.
+        </p>
         <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
+          href="https://nextjs.org/docs"
           target="_blank"
           rel="noopener noreferrer"
+          className={styles.footerLink}
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
+          Documentación de Next.js
         </a>
       </footer>
     </div>
